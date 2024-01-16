@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:todo_list/todo_item.dart';
 
 void main() {
   runApp(const MyApp());
@@ -35,7 +36,7 @@ class _MyHomePageState extends State<MyHomePage> {
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   Importance importance = Importance.none;
   final TextEditingController _controller = TextEditingController();
-  List items = [];
+  List<TodoItem> items = [];
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +54,7 @@ class _MyHomePageState extends State<MyHomePage> {
           itemBuilder: (context, index) {
             final item = items[index];
             return Dismissible(
-              key: Key(item),
+              key: Key(item.content),
               direction: DismissDirection.endToStart,
               background: Container(),
               secondaryBackground: Container(
@@ -69,7 +70,25 @@ class _MyHomePageState extends State<MyHomePage> {
                     .showSnackBar(SnackBar(content: Text('$item dismissed')));
               },
               child: ListTile(
-                title: Text(item),
+                title: Text(
+                  '${item.importance.name.toUpperCase()}  ${item.content}',
+                  style: TextStyle(
+                    fontSize: 18.0,
+                    decoration:
+                        item.isCheck ? TextDecoration.lineThrough : null,
+                  ),
+                ),
+                leading: Checkbox(
+                    value: item.isCheck,
+                    onChanged: (bool? isCheck) {
+                      setState(() {
+                        item.isCheck = isCheck ?? false;
+                      });
+                    }),
+                trailing: Text(
+                  howManyMark(item.importance),
+                  style: const TextStyle(color: Colors.red, fontSize: 18.0),
+                ),
               ),
             );
           },
@@ -106,24 +125,36 @@ class _MyHomePageState extends State<MyHomePage> {
                     children: [
                       IconButton(
                         onPressed: () {
+                          importance = Importance.none;
+                          _controller.clear();
                           Navigator.pop(context);
                         },
                         icon: const Icon(Icons.clear),
                       ),
                       IconButton(
-                        onPressed: () {
-                          setState(() {
-                            items.add(_controller.text);
-                            _controller.clear();
-                            Navigator.pop(context);
-                          });
-                        },
+                        onPressed: _controller.text.isNotEmpty &&
+                                _controller.text != ''
+                            ? () {
+                                setState(() {
+                                  items.add(
+                                    TodoItem(
+                                      importance: importance,
+                                      content: _controller.text,
+                                    ),
+                                  );
+                                  _controller.clear();
+                                  Navigator.pop(context);
+                                });
+                              }
+                            : null,
                         icon: const Icon(Icons.save),
                       ),
                     ],
                   ),
                   TextFormField(
                     controller: _controller,
+                    onChanged: (text) => myState(() {}),
+                    onFieldSubmitted: (text) => myState(() {}),
                     decoration: const InputDecoration(
                       border: InputBorder.none,
                       enabledBorder: UnderlineInputBorder(
@@ -174,5 +205,20 @@ class _MyHomePageState extends State<MyHomePage> {
             );
           });
         });
+  }
+
+  String howManyMark(Importance importance) {
+    switch (importance) {
+      case Importance.none:
+        return '';
+      case Importance.low:
+        return '!';
+      case Importance.medium:
+        return '!!';
+      case Importance.high:
+        return '!!!';
+      default:
+        return '';
+    }
   }
 }

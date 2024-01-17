@@ -206,19 +206,19 @@ class _MyHomePageState extends State<MyHomePage> {
           });
         });
   }
+}
 
-  String howManyMark(Importance importance) {
-    switch (importance) {
-      case Importance.none:
-        return '';
-      case Importance.low:
-        return '!';
-      case Importance.medium:
-        return '!!';
-      case Importance.high:
-        return '!!!';
-      default:
-        return '';
-    }
+String howManyMark(Importance importance) {
+  switch (importance) {
+    case Importance.none:
+      return '';
+    case Importance.low:
+      return '!';
+    case Importance.medium:
+      return '!!';
+    case Importance.high:
+      return '!!!';
+    default:
+      return '';
   }
 }
